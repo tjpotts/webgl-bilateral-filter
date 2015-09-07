@@ -2,14 +2,30 @@
 <html>
 <head>
 	<title>WebGL Bilateral Transform</title>
-</head>
-<body>
-	<canvas id="canvas"></canvas>
 
+	</head>
+<body>
+	<canvas id="canvas" width="800" height="600"></canvas>
+
+	<script id="bilateral-vs" type="x-shader/x-vertex">
+		attribute vec4 position;
+
+		void main() {
+			gl_Position = position;
+		}
+	</script>
+	<script id="bilateral-fs" type="x-shader/x-fragment">
+
+		void main() {
+			gl_FragColor = vec4(0,1,0,1);
+		}
+  
+	</script>
 	<!-- bower:js -->
 	<!-- endbower -->
 
 	<script src="scripts/main.js"></script>
-	
+
+
 </body>
 </html>

@@ -16,5 +16,10 @@
   "dependencies": {
     "jquery": "~2.1.4",
     "twgl.js": "~0.0.26"
+  },
+  "overrides": {
+    "twgl.js": {
+      "main": "dist/twgl.js"
+    }
   }
 }
