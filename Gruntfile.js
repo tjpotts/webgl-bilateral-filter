@@ -4,10 +4,16 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		copy: {
 			// Copy all source files to the build directory
-			source: {
+			html: {
 				expand: true,
 				cwd: 'source/',
-				src: '**/*',
+				src: '**/*.html',
+				dest: 'build/'
+			},
+			js: {
+				expand: true,
+				cwd: 'source/',
+				src: 'scripts/**/*.js',
 				dest: 'build/'
 			}
 		},
@@ -26,13 +32,26 @@ module.exports = function(grunt) {
 					port: 8080,
 					base: ['.','build'],
 					hostname: '*',
-					livereload: true,
-					keepalive: true
+					livereload: true
 				}
+			}
+		},
+
+		watch: {
+			options: {
+				livereload: true
+			},
+			html: {
+				files: ['source/**/*.html'],
+				tasks: ['copy:html','wiredep']
+			},
+			js: {
+				files: ['source/scripts/**/*.js'],
+				tasks: ['copy:js']
 			}
 		}
 	});
 
-	grunt.registerTask('build',['copy:source','wiredep','connect']);
+	grunt.registerTask('build',['copy','wiredep','connect','watch']);
 	grunt.registerTask('default',['build']);
 };
