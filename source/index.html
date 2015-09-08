@@ -38,11 +38,12 @@
 				for (int y = -1 * c_winSize / 2; y <= c_winSize / 2; y++) {
 					vec2 texCoord = v_texCoord + vec2(x,y) * pixSize;
 					vec2 maskCoord = vec2(x,y) / vec2(c_winSize,c_winSize) + vec2(0.5,0.5);
-					color += texture2D(u_image, texCoord) * texture2D(u_mask,maskCoord);
+					vec2 maskCoord2 = vec2(distance(vec2(x,y),maskCoord),0);
+					color += texture2D(u_image, texCoord) * texture2D(u_mask,maskCoord2);
 				}
 			}
 			//gl_FragColor = texture2D(u_image, v_texCoord);
-			gl_FragColor = color;
+			gl_FragColor = color / 5.0;
 		}
   
 	</script>
