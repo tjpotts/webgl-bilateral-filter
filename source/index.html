@@ -8,10 +8,11 @@
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<script id="bilateral-vs" type="x-shader/x-vertex">
-		attribute vec4 position;
+		attribute vec2 position;
+		uniform vec2 u_resolution;
 
 		void main() {
-			gl_Position = position;
+			gl_Position = vec4((position / u_resolution * 2.0 - 1.0) * vec2(1.0,-1.0),0,1);
 		}
 	</script>
 	<script id="bilateral-fs" type="x-shader/x-fragment">

@@ -4,12 +4,12 @@ $(function() {
 	var programInfo = twgl.createProgramInfo(gl, ["bilateral-vs", "bilateral-fs"]);
 	var arrays = {
     	position: { numComponents: 2, data: [
-    		-1, -1,
-    		 1, -1,
-    		-1, 1,
-    		-1, 1,
-    		1, -1,
-    		1, 1,
+    		-100, -100,
+    		 100, -100,
+    		-100, 100,
+    		-100, 100,
+    		100, -100,
+    		100, 100,
     	]}
     };
     var bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
@@ -20,5 +20,7 @@ $(function() {
 
 	gl.useProgram(programInfo.program);
 	twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+
+	twgl.setUniforms(programInfo,{u_resolution:[gl.canvas.width,gl.canvas.height]})
 	twgl.drawBufferInfo(gl, gl.TRIANGLES, bufferInfo);
 });
