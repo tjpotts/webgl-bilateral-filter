@@ -4,6 +4,7 @@ $(function() {
 	var programInfo = twgl.createProgramInfo(gl, ["bilateral-vs", "bilateral-fs"]);
 	twgl.setAttributePrefix("a_");
 
+	// Generate vertex buffer
 	var arrays = {
 		position: { numComponents: 2, data: [
 			0, 0,
@@ -19,7 +20,7 @@ $(function() {
 	twgl.createTexture(gl,{src: 'images/birds.png'},function(err, texture, img) {
 		canvas.width = img.width;
 		canvas.height = img.height;
-		
+
 		twgl.resizeCanvasToDisplaySize(gl.canvas);
 		gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
