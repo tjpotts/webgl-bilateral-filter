@@ -37,12 +37,10 @@
 			for (int x = -1 * c_winSize / 2; x <= c_winSize / 2; x++) {
 				for (int y = -1 * c_winSize / 2; y <= c_winSize / 2; y++) {
 					vec2 texCoord = v_texCoord + vec2(x,y) * pixSize;
-					//vec2 maskCoord = vec2(x,y) / vec2(c_winSize,c_winSize) + vec2(0.5,0.5);
-					vec2 maskCoord = vec2(0.5,0.5);
+					vec2 maskCoord = vec2(x,y) / vec2(c_winSize,c_winSize) + vec2(0.5,0.5);
 					color += texture2D(u_image, texCoord) * texture2D(u_mask,maskCoord);
 				}
 			}
-			//color = color / 25.0;
 			//gl_FragColor = texture2D(u_image, v_texCoord);
 			gl_FragColor = color;
 		}
