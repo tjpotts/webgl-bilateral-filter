@@ -17,6 +17,9 @@ $(function() {
 	};
 	var bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
 
+	// Generate gaussian mask
+	var maskData = generateGaussianMask(5);
+	var mask = twgl.createTexture(gl,{src: maskData, width: 5, height: 5});
 	twgl.createTexture(gl,{src: 'images/birds.png'},function(err, texture, img) {
 		canvas.width = img.width;
 		canvas.height = img.height;
@@ -29,7 +32,8 @@ $(function() {
 
 		twgl.setUniforms(programInfo,{
 			u_resolution: [gl.canvas.width,gl.canvas.height],
-			u_texture: texture
+			u_texture: texture,
+			u_mask: mask
 		})
 		twgl.drawBufferInfo(gl, gl.TRIANGLES, bufferInfo);
 	});
