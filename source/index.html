@@ -24,26 +24,30 @@
 
 		uniform vec2 u_resolution;
 		uniform sampler2D u_image;
-		uniform sampler2D u_mask;
+		uniform sampler2D u_gaussian;
 
 		varying vec2 v_texCoord;
 
 		const int c_winSize = 5;
 
 		void main() {
-			//gl_FragColor = vec4(0,1,0,1);
-			vec2 pixSize = 1.0 / u_resolution;
+			vec2 pixSize = 1.0 / u_resolution; // Distance between pixels in clipspace
 			vec4 color = vec4(0,0,0,0);
+			float u_ssig = 10.0;
+			// Loop through pixels contained in window for current fragment
 			for (int x = -1 * c_winSize / 2; x <= c_winSize / 2; x++) {
 				for (int y = -1 * c_winSize / 2; y <= c_winSize / 2; y++) {
+					// Get the texture coordinate of current pixel
 					vec2 texCoord = v_texCoord + vec2(x,y) * pixSize;
-					vec2 maskCoord = vec2(x,y) / vec2(c_winSize,c_winSize) + vec2(0.5,0.5);
-					vec2 maskCoord2 = vec2(distance(vec2(x,y),maskCoord),0);
-					color += texture2D(u_image, texCoord) * texture2D(u_mask,maskCoord2);
+					// Get the coordinates for the gaussian lookup value
+					vec2 luCoord = vec2(length(vec2(x,y)) / u_ssig / 3.0,0);
+					// Add the contribution from this pixel
+					color += texture2D(u_image, texCoord) * texture2D(u_gaussian,luCoord);
 				}
 			}
 			//gl_FragColor = texture2D(u_image, v_texCoord);
-			gl_FragColor = color / 5.0;
+			gl_FragColor = color / 20.0;
+			//gl_FragColor = texture2D(u_gaussian, v_texCoord);
 		}
   
 	</script>
