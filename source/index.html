@@ -34,6 +34,7 @@
 			vec2 pixSize = 1.0 / u_resolution; // Distance between pixels in clipspace
 			vec4 color = vec4(0,0,0,0);
 			float u_ssig = 10.0;
+			float sum = 0.0;
 			// Loop through pixels contained in window for current fragment
 			for (int x = -1 * c_winSize / 2; x <= c_winSize / 2; x++) {
 				for (int y = -1 * c_winSize / 2; y <= c_winSize / 2; y++) {
@@ -41,12 +42,14 @@
 					vec2 texCoord = v_texCoord + vec2(x,y) * pixSize;
 					// Get the coordinates for the gaussian lookup value
 					vec2 luCoord = vec2(length(vec2(x,y)) / u_ssig / 3.0,0);
+					float luVal = texture2D(u_gaussian,luCoord).r;
 					// Add the contribution from this pixel
-					color += texture2D(u_image, texCoord) * texture2D(u_gaussian,luCoord);
+					sum += luVal;
+					color += texture2D(u_image, texCoord) * luVal;
 				}
 			}
 			//gl_FragColor = texture2D(u_image, v_texCoord);
-			gl_FragColor = color / 20.0;
+			gl_FragColor = color / sum;
 			//gl_FragColor = texture2D(u_gaussian, v_texCoord);
 		}
   
