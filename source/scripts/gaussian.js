@@ -14,7 +14,3 @@ function generateGaussianLookup(size, devs) {
 
 	return lookup;
 }
-
-$(function() {
-	console.log(generateGaussianLookup(512,3));
-});
