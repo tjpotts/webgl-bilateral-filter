@@ -4,7 +4,8 @@
 function generateGaussianLookup(size, devs) {
 	var lookup = [];
 	var sum = 0;
-
+	var val;
+	
 	for (var x = 0; x <= size; x++) {
 		val = Math.pow(x*devs/size,2);
 		val = Math.pow(Math.E,val*-1);

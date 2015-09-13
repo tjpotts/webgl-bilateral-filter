@@ -2,24 +2,37 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
 	grunt.initConfig({
+		// Copy source files to the build directory
 		copy: {
-			// Copy all source files to the build directory
 			html: {
 				expand: true,
 				cwd: 'source/',
 				src: '**/*.html',
 				dest: 'build/'
 			},
-			scripts: {
+			shaders: {
 				expand: true,
 				cwd: 'source/',
-				src: 'scripts/**/*.{js,glsl}',
+				src: 'scripts/**/*.glsl}',
 				dest: 'build/'
 			},
 			images: {
 				expand: true,
 				cwd: 'source/',
 				src: 'images/**/*',
+				dest: 'build/'
+			}
+		},
+
+		// Compile JSX
+		babel: {
+			options: {
+				sourceMap: true
+			},
+			files: {
+				expand: true,
+				cwd: 'source/',
+				src: 'scripts/**/*.js',
 				dest: 'build/'
 			}
 		},
@@ -53,11 +66,11 @@ module.exports = function(grunt) {
 			},
 			js: {
 				files: ['source/scripts/**/*.js'],
-				tasks: ['copy:scripts']
+				tasks: ['babel']
 			},
 			shaders: {
 				files: ['source/scripts/**/*.glsl'],
-				tasks: ['copy:scripts']
+				tasks: ['copy:shaders']
 			},
 			images: {
 				files: ['source/images/**/*'],
@@ -66,6 +79,6 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.registerTask('build',['copy','wiredep','connect','watch']);
+	grunt.registerTask('build',['copy','babel','wiredep','connect','watch']);
 	grunt.registerTask('default',['build']);
 };
