@@ -5,7 +5,12 @@
 
 	</head>
 <body>
-	<button id="runBtn">Run</button>
+	<form>
+		<label for="imageUrl">Image URL:</label>
+		<input name="imageUrl" type="text">
+		<button id="runBtn" type="button">Run</button>
+	</form>
+
 	<canvas id="canvas" width="800" height="600"></canvas>
 
 	<script id="bilateral-vs" type="x-shader/x-vertex">

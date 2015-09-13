@@ -9,7 +9,9 @@ $(function() {
 	filt.init();
 
 	$("#runBtn").click(function() {
-		twgl.createTexture(gl,{src: 'images/birds.png', wrap: gl.CLAMP_TO_EDGE},function(err, texture, img) {
+		var imgUrl = $('input[name="imageUrl"]').val();
+
+		twgl.createTexture(gl,{src: imgUrl, wrap: gl.CLAMP_TO_EDGE},function(err, texture, img) {
 			var options = {
 				width: img.width,
 				height: img.height
