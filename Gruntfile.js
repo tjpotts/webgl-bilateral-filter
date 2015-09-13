@@ -10,10 +10,10 @@ module.exports = function(grunt) {
 				src: '**/*.html',
 				dest: 'build/'
 			},
-			js: {
+			scripts: {
 				expand: true,
 				cwd: 'source/',
-				src: 'scripts/**/*.js',
+				src: 'scripts/**/*.{js,glsl}',
 				dest: 'build/'
 			},
 			images: {
@@ -53,7 +53,11 @@ module.exports = function(grunt) {
 			},
 			js: {
 				files: ['source/scripts/**/*.js'],
-				tasks: ['copy:js']
+				tasks: ['copy:scripts']
+			},
+			shaders: {
+				files: ['source/scripts/**/*.glsl'],
+				tasks: ['copy:scripts']
 			},
 			images: {
 				files: ['source/images/**/*'],
