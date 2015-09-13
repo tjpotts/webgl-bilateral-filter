@@ -17,13 +17,6 @@ function BilatFilter(gl) {
 			wrap: gl.CLAMP_TO_EDGE
 		});
 
-		// Create the buffer texture to render to
-		this.bufferTex = twgl.createTexture(gl,{
-			min: gl.LINEAR, 
-			mag: gl.LINEAR, 
-			wrap: gl.CLAMP_TO_EDGE
-		});
-
 		// Create the vertex position buffer 
 		this.attrArrays = {
 			a_position: { numComponents: 2, data: [
@@ -40,15 +33,24 @@ function BilatFilter(gl) {
 
 	}
 
-	this.filter = function(srcTex,width,height) {
+	this.filter = function(srcTex,width,height,destTex) {
+		// Create the texture to render to if one was not supplied
+		if (!destTex) {
+			destTex = twgl.createTexture(gl,{
+				min: gl.LINEAR, 
+				mag: gl.LINEAR, 
+				wrap: gl.CLAMP_TO_EDGE
+			});
+		}
+		
 		// Resize the canvas, viewport and buffer texture
 		gl.canvas.width = width;
 		gl.canvas.height = height;
 		gl.viewport(0, 0, width, height);
-		twgl.resizeTexture(gl,this.bufferTex,{},width,height);
+		twgl.resizeTexture(gl,destTex,{},width,height);
 
 		// Create the framebuffer to draw to, with the buffer texture attached
-		var fbi = twgl.createFramebufferInfo(gl,[{attachment: this.bufferTex}],gl.canvas.width,gl.canvas.height);
+		var fbi = twgl.createFramebufferInfo(gl,[{attachment: destTex}],gl.canvas.width,gl.canvas.height);
 		
 		// Use the bilateral filter shader program
 		gl.useProgram(this.programInfo.program);
@@ -61,15 +63,9 @@ function BilatFilter(gl) {
 			u_gaussian: this.lookupTex
 		});
 		
-		// Render the image
+		// Render the image and return the output texture
 		twgl.drawBufferInfo(gl, gl.TRIANGLES, this.bufferInfo);
-
-		// Set the internal buffer texture to the source texture
-		// to use next time, and return the current buffer texture
-		// as the output
-		var outTex = this.bufferTex;
-		this.bufferTex = srcTex;
-		return outTex;
+		return destTex;
 	}
 }
 
