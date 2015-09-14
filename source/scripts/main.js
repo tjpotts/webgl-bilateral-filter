@@ -4,7 +4,8 @@ var FilterApp = React.createClass({
 	gl: null,
 	getInitialState: function() {
 		return {
-			initialized: false
+			imgUrl: "",
+			options: {}
 		};
 	},
 	loadShaders: function(cb) {
@@ -26,44 +27,47 @@ var FilterApp = React.createClass({
 		this.filt = new BilatFilter(this.gl);
 		this.filt.init();
 	},
-	run: function() {
-		var imgUrl = $('input[name="imgUrl"]').val();
-		var self = this;
-
-		twgl.createTexture(this.gl,{src: imgUrl, wrap: this.gl.CLAMP_TO_EDGE},function(err, texture, img) {
+	setOption: function(option,value) {
+		var options = {};
+		options[option] = value;
+		this.setState({"options":options});
+	},
+	run: function() {		
+		twgl.createTexture(this.gl,{src: this.state.options.imgUrl, wrap: this.gl.CLAMP_TO_EDGE},(function(err, texture, img) {
 			var options = {
 				width: img.width,
 				height: img.height
 			};
-			texture = self.filt.filter(texture,options);
-			self.filt.draw(texture,options);
-		});
+			texture = this.filt.filter(texture,options);
+			this.filt.draw(texture,options);
+		}).bind(this));
 
 		return false;
 	},
 	componentDidMount: function() {
-		var self = this;
-		this.loadShaders(function(){
-			self.init();
-			$("#optionsFrm").submit(self.run);
-		});
+		this.loadShaders((function(){
+			this.init();
+		}).bind(this));
 	},
 	render: function() {
 		return (
 			<div>
-				<FilterApp.Form />
+				<FilterApp.OptionsForm ref="optionsForm" onChange={this.setOption} onSubmit={this.run} />
 				<FilterApp.Canvas ref="canvas" />
 			</div>
 		);
 	}
 });
 
-FilterApp.Form = React.createClass({
+FilterApp.OptionsForm = React.createClass({
+	handleChange: function(event) {
+		this.props.onChange(event.target.name,event.target.value);
+	},
 	render: function() {
 		return (
-			<form id="optionsFrm">
+			<form id="optionsForm" onSubmit={this.props.onSubmit}>
 				<label htmlFor="imgUrl">Image URL:</label>
-				<input name="imgUrl" type="text" />
+				<input name="imgUrl" ref="imgUrl" type="text" onChange={this.handleChange} />
 				<button id="runButton" type="submit">Run</button>
 			</form>
 		);
