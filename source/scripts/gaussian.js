@@ -1,7 +1,8 @@
 
+
 // Generates a Gaussian lookup array from 0 to <devs> standard deviations,
 // with <size> elements which is normalized to the range [0,1]
-function generateGaussianLookup(size, devs) {
+exports.generateGaussianLookup = function(size, devs) {
 	var lookup = [];
 	var sum = 0;
 	var val;

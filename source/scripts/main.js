@@ -1,5 +1,10 @@
 "use strict";
 
+var $ = require("jquery");
+var React = require("react");
+var twgl = require("twgl.js");
+var BilatFilter = require("./BilatFilter.js").BilatFilter;
+
 var FilterApp = React.createClass({
 	gl: null,
 	getInitialState: function() {

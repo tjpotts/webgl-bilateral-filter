@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 			shaders: {
 				expand: true,
 				cwd: 'source/',
-				src: 'scripts/**/*.glsl}',
+				src: 'scripts/**/*.glsl',
 				dest: 'build/'
 			},
 			images: {
@@ -33,7 +33,18 @@ module.exports = function(grunt) {
 				expand: true,
 				cwd: 'source/',
 				src: 'scripts/**/*.js',
-				dest: 'build/'
+				dest: '.tmp/babel/'
+			}
+		},
+
+		// Webpack
+		webpack:{
+			all: {
+				entry: "./.tmp/babel/scripts/main.js",
+				output: {
+					path: "build/scripts",
+					filename: "main.js"
+				}
 			}
 		},
 
@@ -66,7 +77,7 @@ module.exports = function(grunt) {
 			},
 			js: {
 				files: ['source/scripts/**/*.js'],
-				tasks: ['babel']
+				tasks: ['babel','webpack']
 			},
 			shaders: {
 				files: ['source/scripts/**/*.glsl'],
@@ -79,6 +90,6 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.registerTask('build',['copy','babel','wiredep','connect','watch']);
+	grunt.registerTask('build',['copy','babel','webpack','wiredep','connect','watch']);
 	grunt.registerTask('default',['build']);
 };

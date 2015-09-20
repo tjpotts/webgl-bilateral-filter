@@ -1,4 +1,7 @@
-function BilatFilter(gl) {
+var twgl = require("twgl.js");
+var generateGaussianLookup = require("./gaussian.js").generateGaussianLookup;
+
+exports.BilatFilter = function(gl) {
 	this.gl = gl;
 
 	this.init = function() {
