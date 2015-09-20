@@ -2,6 +2,7 @@
 
 var $ = require("jquery");
 var React = require("react");
+var GL = require("gl-react");
 var twgl = require("twgl.js");
 var BilatFilter = require("./BilatFilter.js").BilatFilter;
 

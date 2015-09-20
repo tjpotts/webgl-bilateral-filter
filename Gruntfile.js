@@ -24,34 +24,23 @@ module.exports = function(grunt) {
 			}
 		},
 
-		// Compile JSX
-		babel: {
-			options: {
-				sourceMap: true
-			},
-			files: {
-				expand: true,
-				cwd: 'source/',
-				src: 'scripts/**/*.js',
-				dest: '.tmp/babel/'
-			}
-		},
-
 		// Webpack
 		webpack:{
 			all: {
-				entry: "./.tmp/babel/scripts/main.js",
+				entry: "./source/scripts/main.js",
 				output: {
 					path: "build/scripts",
 					filename: "main.js"
+				},
+				module: {
+					loaders: [
+						{
+							test: /\.js$/,
+							loader: 'babel',
+							exclude: /buffer/
+						}
+					]
 				}
-			}
-		},
-
-		// Wire up bower dependencies
-		wiredep: {
-			all: {
-				src: 'build/**/*.html'
 			}
 		},
 
@@ -77,7 +66,7 @@ module.exports = function(grunt) {
 			},
 			js: {
 				files: ['source/scripts/**/*.js'],
-				tasks: ['babel','webpack']
+				tasks: ['webpack']
 			},
 			shaders: {
 				files: ['source/scripts/**/*.glsl'],
@@ -90,6 +79,6 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.registerTask('build',['copy','babel','webpack','wiredep','connect','watch']);
+	grunt.registerTask('build',['copy','webpack','connect','watch']);
 	grunt.registerTask('default',['build']);
 };
