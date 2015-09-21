@@ -3,92 +3,61 @@
 var $ = require("jquery");
 var React = require("react");
 var GL = require("gl-react");
-var twgl = require("twgl.js");
-var BilatFilter = require("./BilatFilter.js").BilatFilter;
+var bilatfs = require("./shaders/bilat.glsl");
 
-var FilterApp = React.createClass({
-	gl: null,
-	getInitialState: function() {
-		return {
-			imgUrl: "",
-			options: {}
-		};
-	},
-	loadShaders: function(cb) {
-		var shaders = $('script[type="x-shader/x-vertex"][src],script[type="x-shader/x-fragment"][src]');
-		var shadersLoaded = 0;
-		shaders.each(function(i, s) {
-			$.get(s.src,function(data) {
-				s.text = data;
-				shadersLoaded++;
-				if (shadersLoaded >= shaders.length)
-					cb();
-			});
-		});
-	},
-	init: function() {
-		var canvas = this.refs.canvas.getDOMNode();
-		this.gl = twgl.getWebGLContext($("canvas")[0]);
-		
-		this.filt = new BilatFilter(this.gl);
-		this.filt.init();
-	},
-	setOption: function(option,value) {
-		var options = {};
-		options[option] = value;
-		this.setState({"options":options});
-	},
-	run: function() {		
-		twgl.createTexture(this.gl,{src: this.state.options.imgUrl, wrap: this.gl.CLAMP_TO_EDGE},(function(err, texture, img) {
-			var options = {
-				width: img.width,
-				height: img.height
-			};
-			texture = this.filt.filter(texture,options);
-			this.filt.draw(texture,options);
-		}).bind(this));
-
-		return false;
-	},
-	componentDidMount: function() {
-		this.loadShaders((function(){
-			this.init();
-		}).bind(this));
-	},
-	render: function() {
-		return (
-			<div>
-				<FilterApp.OptionsForm ref="optionsForm" onChange={this.setOption} onSubmit={this.run} />
-				<FilterApp.Canvas ref="canvas" />
-			</div>
-		);
+const shaders = GL.Shaders.create({
+	bilat: {
+		frag: require('./shaders/bilat.glsl')
 	}
 });
 
-FilterApp.OptionsForm = React.createClass({
-	handleChange: function(event) {
-		this.props.onChange(event.target.name,event.target.value);
-	},
-	render: function() {
-		return (
-			<form id="optionsForm" onSubmit={this.props.onSubmit}>
-				<label htmlFor="imgUrl">Image URL:</label>
-				<input name="imgUrl" ref="imgUrl" type="text" onChange={this.handleChange} />
-				<button id="runButton" type="submit">Run</button>
-			</form>
-		);
-	}
-});
+class Bilateral extends GL.Component {
+	generateLookup() {
+		const lookupLength = 512;
+		const lookupDevs = 3;
 
-FilterApp.Canvas = React.createClass({
-	render: function() {
-		return (
-			<canvas />
-		);
+		var canvas = this.refs.lookupCanvas.getDOMNode();
+		var ctx = canvas.getContext("2d");
+		canvas.width = lookupLength;
+		canvas.height = 1;
+
+		var val;
+		for (var i = 0; i < lookupLength; i++) {
+			val = Math.pow(i*lookupDevs/lookupLength,2);
+			val = Math.pow(Math.E,val*-1);
+			val = Math.round(val*255);
+
+			ctx.fillStyle = "rgb(" + val + "," + val + "," + val + ")";
+			ctx.fillRect(i,0,1,1);
+		}
+
+		this.refs.view.props.uniforms["gaussian"] = canvas.toDataURL();
+		this.refs.view.forceUpdate();
 	}
-});
+
+	componentDidMount() {
+		this.generateLookup();
+	}
+
+	render() {
+		const { width, height, image } = this.props;
+		const gaussian = "";
+		return <div>
+			<GL.View ref="view"
+				shader={shaders.bilat}
+				width={width}
+				height={height}
+				uniforms={{image,width,height,gaussian}}
+			/>
+			<canvas ref="lookupCanvas" style={{display:"none"}} />
+		</div>;
+	}
+}
 
 React.render(
-	<FilterApp />,
+	<div>
+		<Bilateral width={768} height={512} image="images/birds.png" />
+	</div>
+	,
 	document.getElementById('app')
 );

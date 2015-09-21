@@ -10,12 +10,6 @@ module.exports = function(grunt) {
 				src: '**/*.html',
 				dest: 'build/'
 			},
-			shaders: {
-				expand: true,
-				cwd: 'source/',
-				src: 'scripts/**/*.glsl',
-				dest: 'build/'
-			},
 			images: {
 				expand: true,
 				cwd: 'source/',
@@ -38,9 +32,15 @@ module.exports = function(grunt) {
 							test: /\.js$/,
 							loader: 'babel',
 							exclude: /buffer/
+						},
+						{
+							test: /\.glsl$/,
+							loader: 'raw',
+							exclude: /node_modules/
 						}
 					]
-				}
+				},
+				devtool: "source-map"
 			}
 		},
 
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 			},
 			shaders: {
 				files: ['source/scripts/**/*.glsl'],
-				tasks: ['copy:shaders']
+				tasks: ['webpack']
 			},
 			images: {
 				files: ['source/images/**/*'],
