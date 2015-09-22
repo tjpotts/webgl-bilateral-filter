@@ -7,11 +7,12 @@ uniform sampler2D gaussian;
 uniform float width;
 uniform float height;
 
-const int c_winSize = 51;
+uniform float ssig;
+uniform float rsig;
+
+const int c_winSize = 25;
 
 void main() {
-	float ssig = 20.0;
-	float rsig = 0.3;
 	vec3 color = vec3(0.0,0.0,0.0);
 
 	vec2 pixSize = 1.0 / vec2(width,height); // Distance between pixels in clipspace

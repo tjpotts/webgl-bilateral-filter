@@ -12,11 +12,23 @@ const shaders = GL.Shaders.create({
 });
 
 class Bilateral extends GL.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			ssig: 10,
+			rsig: 0.3,
+			gaussian: this.generateLookup()
+		};
+
+		this.inputChange = this.inputChange.bind(this);
+	}
+
 	generateLookup() {
 		const lookupLength = 512;
 		const lookupDevs = 3;
 
-		var canvas = this.refs.lookupCanvas.getDOMNode();
+		//var canvas = this.refs.lookupCanvas.getDOMNode();
+		var canvas = document.createElement("canvas");
 		var ctx = canvas.getContext("2d");
 		canvas.width = lookupLength;
 		canvas.height = 1;
@@ -31,24 +43,41 @@ class Bilateral extends GL.Component {
 			ctx.fillRect(i,0,1,1);
 		}
 
-		this.refs.view.props.uniforms["gaussian"] = canvas.toDataURL();
-		this.refs.view.forceUpdate();
+		return canvas.toDataURL();
 	}
 
-	componentDidMount() {
-		this.generateLookup();
+	inputChange(e) {
+		var state = {};
+		state[e.target.name] = Number(e.target.value);
+		this.setState(state);
 	}
 
 	render() {
 		const { width, height, image } = this.props;
-		const gaussian = "";
+		const {ssig, rsig} = this.state;
+		console.log("render",ssig,rsig);
+
+		const gaussian = this.state.gaussian;
 		return <div>
+			<form>
+				<input type="range" name="ssig" value={ssig} min={1} max={25} step={1} onChange={this.inputChange}/>
+				<input type="range" name="rsig" value={rsig} min={0.1} max={0.7} step={0.1} onChange={this.inputChange}/>
+			</form>
 			<GL.View ref="view"
 				shader={shaders.bilat}
 				width={width}
 				height={height}
-				uniforms={{image,width,height,gaussian}}
-			/>
+				uniforms={{width,height,gaussian,ssig,rsig}}
+			>
+				<GL.Uniform name="image">
+					<GL.View ref="view"
+						shader={shaders.bilat}
+						width={width}
+						height={height}
+						uniforms={{image,width,height,gaussian,ssig,rsig}}
+					/>
+				</GL.Uniform>
+			</GL.View>
 			<canvas ref="lookupCanvas" style={{display:"none"}} />
 		</div>;
 	}
