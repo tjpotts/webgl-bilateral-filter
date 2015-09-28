@@ -24,8 +24,10 @@ class Bilateral extends GL.Component {
 			rsigTmp: 0.3,
 			sobelFactor: 0.5,
 			sobelFactorTmp: 0.5,
-			imgPath: "",
-			image: "images/birds.png",
+			imgPath: "images/birds.png",
+			image: "",
+			width: 1,
+			height: 1,
 			gaussian: this.generateLookup()
 		};
 		this.state = this.defaultValues;
@@ -38,7 +40,6 @@ class Bilateral extends GL.Component {
 		const lookupLength = 512;
 		const lookupDevs = 3;
 
-		//var canvas = this.refs.lookupCanvas.getDOMNode();
 		var canvas = document.createElement("canvas");
 		var ctx = canvas.getContext("2d");
 		canvas.width = lookupLength;
@@ -67,17 +68,39 @@ class Bilateral extends GL.Component {
 	}
 
 	loadImg(e) {
-		this.setState({image: this.state.imgPath});
+		var canvas = document.createElement("canvas");
+		var ctx = canvas.getContext("2d");
+		var image = new Image();
 
-		e.preventDefault();
+		image.onload = (function() {
+			canvas.width = image.width;
+			canvas.height = image.height;
+
+			ctx.drawImage(image, 0, 0, image.width, image.height);
+
+			var dataUrl = canvas.toDataURL();
+			this.setState({image: dataUrl, width: image.width, height: image.height});
+			console.log("Image size:",image.width,image.height);
+			this.forceUpdate();
+		}).bind(this);
+		image.src = this.state.imgPath;
+
+		if (e)
+			e.preventDefault();
+	}
+
+	componentWillMount() {
+		console.log("ComponentWillMount");
+		this.loadImg();
 	}
 
 	render() {
-		const {width, height} = this.props;
-		const {ssig, rsig, sobelFactor, imgPath, image} = this.state;
+		const {width, height, ssig, rsig, sobelFactor, imgPath, image} = this.state;
 		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
 		
 		const gaussian = this.state.gaussian;
+
+		console.log("State size:",width,height);
 		return <div>
 			<form onSubmit={this.loadImg}>
 				<input type="text" name="imgPath" onChange={this.inputChange}/>
@@ -112,14 +135,13 @@ class Bilateral extends GL.Component {
 				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
 				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
 			</form>
-			<canvas ref="lookupCanvas" style={{display:"none"}} />
 		</div>;
 	}
 }
 
 React.render(
 	<div>
-		<Bilateral width={768} height={512} />
+		<Bilateral/>
 	</div>
 	,
 	document.getElementById('app')
