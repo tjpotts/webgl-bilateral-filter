@@ -34,6 +34,7 @@ class Bilateral extends GL.Component {
 
 		this.inputChange = this.inputChange.bind(this);
 		this.loadImg = this.loadImg.bind(this);
+		this.loadLocalImg = this.loadLocalImg.bind(this);
 	}
 
 	generateLookup() {
@@ -80,7 +81,6 @@ class Bilateral extends GL.Component {
 
 			var dataUrl = canvas.toDataURL();
 			this.setState({image: dataUrl, width: image.width, height: image.height});
-			console.log("Image size:",image.width,image.height);
 			this.forceUpdate();
 		}).bind(this);
 		image.src = this.state.imgPath;
@@ -89,8 +89,25 @@ class Bilateral extends GL.Component {
 			e.preventDefault();
 	}
 
+	loadLocalImg(e) {
+		var reader = new FileReader();
+		reader.onload = (function(e) {
+			var dataUrl = e.target.result;
+			var img = new Image();
+			img.onload = (function(e) {
+				this.setState({image: dataUrl, width: img.width, height: img.height});
+				this.forceUpdate();
+			}).bind(this);
+			img.src = dataUrl;
+		}).bind(this);
+		reader.readAsDataURL(e.target.files[0]);
+	}
+
+	clearLocalImg(e) {
+		e.target.value = "";
+	}
+
 	componentWillMount() {
-		console.log("ComponentWillMount");
 		this.loadImg();
 	}
 
@@ -99,12 +116,11 @@ class Bilateral extends GL.Component {
 		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
 		
 		const gaussian = this.state.gaussian;
-
-		console.log("State size:",width,height);
 		return <div>
 			<form onSubmit={this.loadImg}>
 				<input type="text" name="imgPath" onChange={this.inputChange}/>
 				<button type="submit">Load Image</button>
+				<input type="file" name="imgLocal" onChange={this.loadLocalImg} onClick={this.clearLocalImg}/>
 			</form>
 			<GL.View
 				shader={shaders.sobel}
@@ -115,15 +131,11 @@ class Bilateral extends GL.Component {
 				<GL.Uniform name="image">
 					<GL.View ref="view"
 						shader={shaders.bilat}
-						width={width}
-						height={height}
 						uniforms={{width,height,gaussian,ssig,rsig}}
 					>
 						<GL.Uniform name="image">
 							<GL.View ref="view"
 								shader={shaders.bilat}
-								width={width}
-								height={height}
 								uniforms={{image,width,height,gaussian,ssig,rsig}}
 							/>
 						</GL.Uniform>
@@ -131,7 +143,7 @@ class Bilateral extends GL.Component {
 				</GL.Uniform>
 			</GL.View>
 			<form>
-				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={25} step={1} onMouseUp={this.inputChange}/>
+				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={10} step={1} onMouseUp={this.inputChange}/>
 				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
 				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
 			</form>
