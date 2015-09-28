@@ -24,12 +24,14 @@ class Bilateral extends GL.Component {
 			rsigTmp: 0.3,
 			sobelFactor: 0.5,
 			sobelFactorTmp: 0.5,
+			imgPath: "",
+			image: "images/birds.png",
 			gaussian: this.generateLookup()
 		};
 		this.state = this.defaultValues;
 
 		this.inputChange = this.inputChange.bind(this);
-		this.inputSave = this.inputSave.bind(this);
+		this.loadImg = this.loadImg.bind(this);
 	}
 
 	generateLookup() {
@@ -57,30 +59,29 @@ class Bilateral extends GL.Component {
 
 	inputChange(e) {
 		var state = {};
-		//state[e.target.name + "Tmp"] = Number(e.target.value);
-		state[e.target.name] = Number(e.target.value);
-		console.log("Input change",e.target.name,e.target.value);
+		var val = e.target.value;
+		if (e.target.type == "range")
+			val = Number(val);
+		state[e.target.name] = val;
 		this.setState(state);
 	}
 
-	inputSave(e) {
-		var state = {};
-		state[e.target.name] = state[e.target.name + "Tmp"];
-		console.log("Input save",e.target.name,state[e.target.name+"Tmp"]);
-		this.setState(state);
+	loadImg(e) {
+		this.setState({image: this.state.imgPath});
+
+		e.preventDefault();
 	}
 
 	render() {
-		const {width, height, image} = this.props;
-		const {ssig, rsig, sobelFactor} = this.state;
+		const {width, height} = this.props;
+		const {ssig, rsig, sobelFactor, imgPath, image} = this.state;
 		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
 		
 		const gaussian = this.state.gaussian;
 		return <div>
-			<form>
-				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={25} step={1} onMouseUp={this.inputChange}/>
-				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
-				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
+			<form onSubmit={this.loadImg}>
+				<input type="text" name="imgPath" onChange={this.inputChange}/>
+				<button type="submit">Load Image</button>
 			</form>
 			<GL.View
 				shader={shaders.sobel}
@@ -106,6 +107,11 @@ class Bilateral extends GL.Component {
 					</GL.View>
 				</GL.Uniform>
 			</GL.View>
+			<form>
+				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={25} step={1} onMouseUp={this.inputChange}/>
+				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
+				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
+			</form>
 			<canvas ref="lookupCanvas" style={{display:"none"}} />
 		</div>;
 	}
@@ -113,7 +119,7 @@ class Bilateral extends GL.Component {
 
 React.render(
 	<div>
-		<Bilateral width={768} height={512} image="images/birds.png" />
+		<Bilateral width={768} height={512} />
 	</div>
 	,
 	document.getElementById('app')
