@@ -17,14 +17,19 @@ const shaders = GL.Shaders.create({
 class Bilateral extends GL.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
+		this.defaultValues = {
 			ssig: 10,
+			ssigTmp: 10,
 			rsig: 0.3,
+			rsigTmp: 0.3,
 			sobelFactor: 0.5,
+			sobelFactorTmp: 0.5,
 			gaussian: this.generateLookup()
 		};
+		this.state = this.defaultValues;
 
 		this.inputChange = this.inputChange.bind(this);
+		this.inputSave = this.inputSave.bind(this);
 	}
 
 	generateLookup() {
@@ -52,20 +57,30 @@ class Bilateral extends GL.Component {
 
 	inputChange(e) {
 		var state = {};
+		//state[e.target.name + "Tmp"] = Number(e.target.value);
 		state[e.target.name] = Number(e.target.value);
+		console.log("Input change",e.target.name,e.target.value);
+		this.setState(state);
+	}
+
+	inputSave(e) {
+		var state = {};
+		state[e.target.name] = state[e.target.name + "Tmp"];
+		console.log("Input save",e.target.name,state[e.target.name+"Tmp"]);
 		this.setState(state);
 	}
 
 	render() {
-		const { width, height, image } = this.props;
+		const {width, height, image} = this.props;
 		const {ssig, rsig, sobelFactor} = this.state;
+		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
 		
 		const gaussian = this.state.gaussian;
 		return <div>
 			<form>
-				<input type="range" name="ssig" value={ssig} min={1} max={25} step={1} onChange={this.inputChange}/>
-				<input type="range" name="rsig" value={rsig} min={0.1} max={0.7} step={0.02} onChange={this.inputChange}/>
-				<input type="range" name="sobelFactor" value={sobelFactor} min={0} max={1} step={0.02} onChange={this.inputChange}/>
+				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={25} step={1} onMouseUp={this.inputChange}/>
+				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
+				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
 			</form>
 			<GL.View
 				shader={shaders.sobel}
