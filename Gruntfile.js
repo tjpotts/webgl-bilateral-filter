@@ -25,15 +25,15 @@ module.exports = function(grunt) {
 		// Webpack
 		webpack:{
 			all: {
-				entry: "./source/scripts/main.js",
+				entry: "./source/index.js",
 				resolve: {
 					alias: {
 						'react': reactPath
 					}
 				},
 				output: {
-					path: "build/scripts",
-					filename: "main.js"
+					path: "build",
+					filename: "index.js"
 				},
 				module: {
 					loaders: [
@@ -72,14 +72,14 @@ module.exports = function(grunt) {
 			},
 			html: {
 				files: ['source/**/*.html'],
-				tasks: ['copy:html','wiredep']
+				tasks: ['copy:html']
 			},
 			js: {
-				files: ['source/scripts/**/*.js'],
+				files: ['source/**/*.js'],
 				tasks: ['webpack']
 			},
 			shaders: {
-				files: ['source/scripts/**/*.glsl'],
+				files: ['source/**/*.glsl'],
 				tasks: ['webpack']
 			},
 			images: {
