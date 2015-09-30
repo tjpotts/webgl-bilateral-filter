@@ -88,15 +88,80 @@ var OptionsForm = React.createClass({
 	},
 	render: function() {
 		return <form>
-			<label for="ssig">Blur</label>
+			<label htmlFor="ssig">Blur</label>
 			<input type="range" name="ssig" defaultValue={this.props.ssigDef} min={1} max={10} step={1} onMouseUp={this.inputChange}/>
-			<label for="rsig">Edge Preservation</label>
+			<label htmlFor="rsig">Edge Preservation</label>
 			<input type="range" name="rsig" defaultValue={this.props.rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
-			<label for="sobelFactor">Edge Emphasis</label>
+			<label htmlFor="sobelFactor">Edge Emphasis</label>
 			<input type="range" name="sobelFactor" defaultValue={this.props.sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
 		</form>
 	}
 });
+
+var SaveForm = React.createClass({
+	saveImage: function(e) {
+		console.log("Saving image..");
+		e.preventDefault();
+	},
+	render: function() {
+		return <form onSubmit={this.saveImage}>
+			<button type="submit">Save Image</button>
+		</form>
+	}
+});
+
+class SobelFilter extends GL.Component {
+	render() {
+		const {children, width, height, factor} = this.props;
+		return <GL.View
+			shader={shaders.sobel}
+			width={width}
+			height={height}
+			uniforms={{width,height,factor}}
+		>
+			<GL.Uniform name="image">{children}</GL.Uniform>
+		</GL.View>
+	}
+}
+
+class BilatFilter extends GL.Component {
+	render() {
+		const {children, width, height, gaussian, ssig, rsig} = this.props;
+		const uniforms = {width,height,gaussian,ssig,rsig};
+		return <GL.View
+			shader={shaders.bilat}
+			width={width}
+			height={height}
+			uniforms={uniforms}
+		>
+			<GL.Uniform name="image">{children}</GL.Uniform>
+		</GL.View>
+	}
+}
+class ImageFilter extends GL.Component {
+	render() {
+		return <GL.View
+			shader={shaders.sobel}
+			width={width}
+			height={height}
+			uniforms={{width,height,factor:sobelFactor}}
+		>
+			<GL.Uniform name="image">
+				<GL.View ref="view"
+					shader={shaders.bilat}
+					uniforms={{width,height,gaussian,ssig,rsig}}
+				>
+					<GL.Uniform name="image">
+						<GL.View ref="view"
+							shader={shaders.bilat}
+							uniforms={{image,width,height,gaussian,ssig,rsig}}
+						/>
+					</GL.Uniform>
+				</GL.View>
+			</GL.Uniform>
+		</GL.View>
+	}
+}
 
 class Bilateral extends GL.Component {
 	constructor(props) {
@@ -139,32 +204,26 @@ class Bilateral extends GL.Component {
 
 	render() {
 		const {width, height, ssig, rsig, sobelFactor, imgPath, image} = this.state;
-		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
+		const [ssigDef, rsigDef, sobelFactorDef] = [this.defaultValues.ssig, this.defaultValues.rsig,this.defaultValues.sobelFactor];
 		
 		const gaussian = this.state.gaussian;
+
+		const sobelProps = {width,height,factor:sobelFactor};
+		const bilatProps = {width,height,gaussian,ssig,rsig};
+
 		return <div>
 			<SelectImageForm onChange={this.setState} />
-			<GL.View
-				shader={shaders.sobel}
-				width={width}
-				height={height}
-				uniforms={{width,height,factor:sobelFactor}}
-			>
-				<GL.Uniform name="image">
-					<GL.View ref="view"
-						shader={shaders.bilat}
-						uniforms={{width,height,gaussian,ssig,rsig}}
-					>
-						<GL.Uniform name="image">
-							<GL.View ref="view"
-								shader={shaders.bilat}
-								uniforms={{image,width,height,gaussian,ssig,rsig}}
-							/>
-						</GL.Uniform>
-					</GL.View>
-				</GL.Uniform>
-			</GL.View>
-			<OptionsForm onChange={this.setState} props={{ssigDef,rsigDef,sobelFactorDef}} />
+			<SobelFilter {...sobelProps}>
+				<BilatFilter {...bilatProps}>
+					<BilatFilter {...bilatProps}>
+						<BilatFilter {...bilatProps}>
+							{image}
+						</BilatFilter>
+					</BilatFilter>
+				</BilatFilter>
+			</SobelFilter>
+			<OptionsForm onChange={this.setState} {...{ssigDef,rsigDef,sobelFactorDef}} />
+			<SaveForm />
 		</div>;
 	}
 }

@@ -1,6 +1,6 @@
 var path = require('path');
 var node_modules = path.resolve(__dirname,'node_modules');
-var reactPath = path.resolve(node_modules, 'react/dist/react.min.js');
+var reactPath = path.resolve(node_modules, 'react/dist/react.js');
 
 module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
