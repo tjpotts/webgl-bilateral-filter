@@ -1,3 +1,7 @@
+var path = require('path');
+var node_modules = path.resolve(__dirname,'node_modules');
+var reactPath = path.resolve(node_modules, 'react/dist/react.min.js');
+
 module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
@@ -22,6 +26,11 @@ module.exports = function(grunt) {
 		webpack:{
 			all: {
 				entry: "./source/scripts/main.js",
+				resolve: {
+					alias: {
+						'react': reactPath
+					}
+				},
 				output: {
 					path: "build/scripts",
 					filename: "main.js"
@@ -37,8 +46,9 @@ module.exports = function(grunt) {
 							test: /\.glsl$/,
 							loader: 'raw',
 							exclude: /node_modules/
-						}
-					]
+						},
+					],
+					noParse: reactPath
 				},
 				devtool: "source-map"
 			}

@@ -14,17 +14,97 @@ const shaders = GL.Shaders.create({
 	}
 });
 
+var SelectImageForm = React.createClass({
+	loadImageFromUrl: function(imgPath) {
+		var canvas = document.createElement("canvas");
+		var ctx = canvas.getContext("2d");
+		var image = new Image();
+
+		image.onload = (function() {
+			canvas.width = image.width;
+			canvas.height = image.height;
+
+			ctx.drawImage(image, 0, 0, image.width, image.height);
+
+			var dataUrl = canvas.toDataURL();
+			this.props.onChange({image: dataUrl, width: image.width, height: image.height});
+		}).bind(this);
+		image.src = imgPath;
+	},
+	openGallery: function(e) {
+		e.preventDefault();
+	},
+	loadRemoteImage: function(e) {
+		var imgPath = this.refs.imgPath.getDOMNode().value;
+		this.loadImageFromUrl(imgPath);
+		if (e)
+			e.preventDefault();
+	},
+	loadLocalImage: function(e) {
+		var reader = new FileReader();
+		console.log("Loading local image");
+		reader.onload = (function(e) {
+			console.log("Local image loaded");
+			var dataUrl = e.target.result;
+			var img = new Image();
+			img.onload = (function(e) {
+				console.log("Local image ready");
+				this.props.onChange({image: dataUrl, width: img.width, height: img.height});
+			}).bind(this);
+			img.src = dataUrl;
+		}).bind(this);
+		reader.readAsDataURL(e.target.files[0]);
+	},
+	clearLocalImage: function(e) {
+		e.target.value = "";
+	},
+	componentDidMount: function() {
+		this.loadImageFromUrl("images/birds.png");
+	},
+	render: function() {
+		return <div>
+			1. Select an Image
+			{/* Select from sample gallery */}
+			<a href="#" onClick={this.openGallery}>Choose a Sample Image</a>
+			{/* Load a local file */}
+			<input type="file" name="imgLocal" onChange={this.loadLocalImage} onClick={this.clearLocalImg}/>
+			{/* Load a remote file */}
+			<form onSubmit={this.loadRemoteImage}>
+				<input type="text" ref="imgPath" name="imgPath"/>
+				<button type="submit">Load Image</button>
+			</form>
+		</div>
+	}
+});
+
+var OptionsForm = React.createClass({
+	inputChange: function(e) {
+		var option = {};
+		var val = e.target.value;
+		if (e.target.type == "range")
+			val = Number(val);
+		option[e.target.name] = val;
+		this.props.onChange(option);
+	},
+	render: function() {
+		return <form>
+			<label for="ssig">Blur</label>
+			<input type="range" name="ssig" defaultValue={this.props.ssigDef} min={1} max={10} step={1} onMouseUp={this.inputChange}/>
+			<label for="rsig">Edge Preservation</label>
+			<input type="range" name="rsig" defaultValue={this.props.rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
+			<label for="sobelFactor">Edge Emphasis</label>
+			<input type="range" name="sobelFactor" defaultValue={this.props.sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
+		</form>
+	}
+});
+
 class Bilateral extends GL.Component {
 	constructor(props) {
 		super(props);
 		this.defaultValues = {
 			ssig: 10,
-			ssigTmp: 10,
 			rsig: 0.3,
-			rsigTmp: 0.3,
 			sobelFactor: 0.5,
-			sobelFactorTmp: 0.5,
-			imgPath: "images/birds.png",
 			image: "",
 			width: 1,
 			height: 1,
@@ -32,9 +112,7 @@ class Bilateral extends GL.Component {
 		};
 		this.state = this.defaultValues;
 
-		this.inputChange = this.inputChange.bind(this);
-		this.loadImg = this.loadImg.bind(this);
-		this.loadLocalImg = this.loadLocalImg.bind(this);
+		this.setState = this.setState.bind(this);
 	}
 
 	generateLookup() {
@@ -59,69 +137,13 @@ class Bilateral extends GL.Component {
 		return canvas.toDataURL();
 	}
 
-	inputChange(e) {
-		var state = {};
-		var val = e.target.value;
-		if (e.target.type == "range")
-			val = Number(val);
-		state[e.target.name] = val;
-		this.setState(state);
-	}
-
-	loadImg(e) {
-		var canvas = document.createElement("canvas");
-		var ctx = canvas.getContext("2d");
-		var image = new Image();
-
-		image.onload = (function() {
-			canvas.width = image.width;
-			canvas.height = image.height;
-
-			ctx.drawImage(image, 0, 0, image.width, image.height);
-
-			var dataUrl = canvas.toDataURL();
-			this.setState({image: dataUrl, width: image.width, height: image.height});
-			this.forceUpdate();
-		}).bind(this);
-		image.src = this.state.imgPath;
-
-		if (e)
-			e.preventDefault();
-	}
-
-	loadLocalImg(e) {
-		var reader = new FileReader();
-		reader.onload = (function(e) {
-			var dataUrl = e.target.result;
-			var img = new Image();
-			img.onload = (function(e) {
-				this.setState({image: dataUrl, width: img.width, height: img.height});
-				this.forceUpdate();
-			}).bind(this);
-			img.src = dataUrl;
-		}).bind(this);
-		reader.readAsDataURL(e.target.files[0]);
-	}
-
-	clearLocalImg(e) {
-		e.target.value = "";
-	}
-
-	componentWillMount() {
-		this.loadImg();
-	}
-
 	render() {
 		const {width, height, ssig, rsig, sobelFactor, imgPath, image} = this.state;
 		const {ssigDef, rsigDef, sobelFactorDef} = this.defaultValues;
 		
 		const gaussian = this.state.gaussian;
 		return <div>
-			<form onSubmit={this.loadImg}>
-				<input type="text" name="imgPath" onChange={this.inputChange}/>
-				<button type="submit">Load Image</button>
-				<input type="file" name="imgLocal" onChange={this.loadLocalImg} onClick={this.clearLocalImg}/>
-			</form>
+			<SelectImageForm onChange={this.setState} />
 			<GL.View
 				shader={shaders.sobel}
 				width={width}
@@ -142,11 +164,7 @@ class Bilateral extends GL.Component {
 					</GL.View>
 				</GL.Uniform>
 			</GL.View>
-			<form>
-				<input type="range" name="ssig" defaultValue={ssigDef} min={1} max={10} step={1} onMouseUp={this.inputChange}/>
-				<input type="range" name="rsig" defaultValue={rsigDef} min={0.1} max={0.7} step={0.02} onMouseUp={this.inputChange}/>
-				<input type="range" name="sobelFactor" defaultValue={sobelFactorDef} min={0} max={1} step={0.02} onMouseUp={this.inputChange}/>
-			</form>
+			<OptionsForm onChange={this.setState} props={{ssigDef,rsigDef,sobelFactorDef}} />
 		</div>;
 	}
 }
