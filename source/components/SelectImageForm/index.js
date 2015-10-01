@@ -1,7 +1,11 @@
 var React = require("react");
 
 var SelectImageForm = React.createClass({
+	getFilenameFromPath: function(path) {
+		return path.replace(/^.*[\\\/]/,'');
+	},
 	loadImageFromUrl: function(imgPath) {
+		var filename = this.getFilenameFromPath(imgPath);
 		var canvas = document.createElement("canvas");
 		var ctx = canvas.getContext("2d");
 		var image = new Image();
@@ -13,7 +17,7 @@ var SelectImageForm = React.createClass({
 			ctx.drawImage(image, 0, 0, image.width, image.height);
 
 			var dataUrl = canvas.toDataURL();
-			this.props.onChange({image: dataUrl, width: image.width, height: image.height});
+			this.props.onChange({filename, image: dataUrl, width: image.width, height: image.height});
 		}).bind(this);
 		image.src = imgPath;
 	},
@@ -28,15 +32,16 @@ var SelectImageForm = React.createClass({
 	},
 	loadLocalImage: function(e) {
 		var reader = new FileReader();
+		var file = e.target.files[0];
 		reader.onload = (function(e) {
 			var dataUrl = e.target.result;
 			var img = new Image();
 			img.onload = (function(e) {
-				this.props.onChange({image: dataUrl, width: img.width, height: img.height});
+				this.props.onChange({filename: file.name, image: dataUrl, width: img.width, height: img.height});
 			}).bind(this);
 			img.src = dataUrl;
 		}).bind(this);
-		reader.readAsDataURL(e.target.files[0]);
+		reader.readAsDataURL(file);
 	},
 	clearLocalImage: function(e) {
 		e.target.value = "";

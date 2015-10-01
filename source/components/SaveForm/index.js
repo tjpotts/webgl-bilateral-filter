@@ -2,7 +2,7 @@ var React = require("react");
 
 var SaveForm = React.createClass({
 	saveImage: function(e) {
-		console.log("Saving image..");
+		this.props.saveCallback();
 		e.preventDefault();
 	},
 	render: function() {
