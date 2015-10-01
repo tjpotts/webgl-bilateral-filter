@@ -1,3 +1,4 @@
+var ndarray = require("ndarray");
 var React = require("react");
 var GL = require("gl-react");
 
@@ -10,22 +11,17 @@ var generateLookup = function() {
 	const lookupLength = 512;
 	const lookupDevs = 3;
 
-	var canvas = document.createElement("canvas");
-	var ctx = canvas.getContext("2d");
-	canvas.width = lookupLength;
-	canvas.height = 1;
-
+	var lookup = [];
 	var val;
 	for (var i = 0; i < lookupLength; i++) {
 		val = Math.pow(i*lookupDevs/lookupLength,2);
 		val = Math.pow(Math.E,val*-1);
 		val = Math.round(val*255);
-
-		ctx.fillStyle = "rgb(" + val + "," + val + "," + val + ")";
-		ctx.fillRect(i,0,1,1);
+		lookup.push(val);
 	}
 
-	return canvas.toDataURL();
+	lookup = ndarray(new Float64Array(lookup),[lookupLength,1]);
+	return lookup;
 }
 
 class BilatFilter extends GL.Component {
@@ -34,6 +30,7 @@ class BilatFilter extends GL.Component {
 		const uniforms = {width,height,gaussian,ssig,rsig};
 		const shader = shaders.bilat;
 		return <GL.View
+			ref="view"
 			shader={shader}
 			width={width}
 			height={height}
@@ -49,6 +46,7 @@ class SobelFilter extends GL.Component {
 		const {children, width, height, factor} = this.props;
 		const shader = shaders.sobel;
 		return <GL.View
+			ref="view"
 			shader={shader}
 			width={width}
 			height={height}
@@ -64,12 +62,15 @@ class ImageFilter extends GL.Component {
 		super(props);
 		this.lookup = generateLookup();
 	}
+	componentDidMount() {
+		this.topView = this.refs.topFilter.refs.view;
+	}
 	render() {
 		const {children,width,height,sobelFactor,bilatIters,ssig,rsig} = this.props;
 		const gaussian = this.lookup;
 
-		const sobelProps = {width,height,factor:sobelFactor};
-		const bilatProps = {width,height,gaussian,ssig,rsig};
+		const sobelProps = {ref:"topFilter",width,height,factor:sobelFactor};
+		const bilatProps = {width,height,ssig,rsig,gaussian};
 
 		
 		let filter = children;

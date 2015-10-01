@@ -15,7 +15,7 @@ var ImageFilterApp = React.createClass({
 			filename: "",
 			image: "",
 			width: 1,
-			height: 1,
+			height: 1
 		};
 		return this.defaultValues;
 	},
@@ -23,12 +23,13 @@ var ImageFilterApp = React.createClass({
 		this.setState(data);
 	},
 	saveImage: function() {
-		var dataUrl = React.findDOMNode(this.refs.filter).getElementsByTagName("canvas")[0].toDataURL();
-		console.log(dataUrl);
-		var link = document.createElement("a");
-		link.download = this.state.filename;
-		link.href = dataUrl;
-		link.click();
+		this.refs.filter.topView.captureFrame.call(this.refs.filter.topView,(function(dataUrl) {
+			console.log("Saving:",dataUrl);
+			var link = document.createElement("a");
+			link.download = this.state.filename;
+			link.href = dataUrl;
+			link.click();
+		}).bind(this));
 	},
 	render: function() {
 		const {width, height, ssig, rsig, sobelFactor, imgPath, image} = this.state;
