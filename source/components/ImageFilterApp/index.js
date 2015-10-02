@@ -1,7 +1,7 @@
 var React = require("react");
 var GL = require("gl-react");
 
-var ImageFilter = require("./../ImageFilter");
+var AppPage = require("./../AppPage");
 var SelectImagePanel = require("./../SelectImagePanel");
 var OptionsPanel = require("./../OptionsPanel");
 var SavePanel = require("./../SavePanel");
@@ -14,34 +14,30 @@ var ImageFilterApp = React.createClass({
 			sobelFactor: 0.5,
 			filename: "",
 			image: "",
+			filterImage: "",
 			width: 1,
-			height: 1
+			height: 1,
+			activePage: "SelectImage"
 		};
 		return this.defaultValues;
 	},
 	onChangeHandler: function(data) {
 		this.setState(data);
 	},
-	saveImage: function() {
-		this.refs.filter.topView.captureFrame.call(this.refs.filter.topView,(function(dataUrl) {
-			console.log("Saving:",dataUrl);
-			var link = document.createElement("a");
-			link.download = this.state.filename;
-			link.href = dataUrl;
-			link.click();
-		}).bind(this));
+	changePage: function(page) {
+		console.log("Changing Page:",page);
+		this.setState({activePage:page});
 	},
 	render: function() {
-		const {width, height, ssig, rsig, sobelFactor, imgPath, image} = this.state;
+		const {activePage, width, height, ssig, rsig, sobelFactor, imgPath, image, filename, filterImage} = this.state;
 		const [ssigDef, rsigDef, sobelFactorDef] = [this.defaultValues.ssig, this.defaultValues.rsig,this.defaultValues.sobelFactor];
 		
 		const filterProps = {width,height,sobelFactor,bilatIters:3,ssig,rsig}
 		
 		return <div>
-			<SelectImagePanel onChange={this.onChangeHandler} />
-			<div className="md-panel"><ImageFilter ref="filter" {...filterProps}>{image}</ImageFilter></div>
-			<OptionsPanel onChange={this.onChangeHandler} {...{ssigDef,rsigDef,sobelFactorDef}} />
-			<SavePanel saveCallback={this.saveImage} />
+			<SelectImagePanel onChange={this.onChangeHandler} nextPage={this.changePage.bind(this,"Options")} {...{activePage,image,width,height}} />
+			<OptionsPanel onChange={this.onChangeHandler} {...filterProps} prevPage={this.changePage.bind(this,"SelectImage")} nextPage={this.changePage.bind(this,"Save")} {...{activePage,image,ssigDef,rsigDef,sobelFactorDef}} />
+			<SavePanel prevPage={this.changePage.bind(this,"Options")} {...{activePage,filename,filterImage}} />
 		</div>;
 	}
 });

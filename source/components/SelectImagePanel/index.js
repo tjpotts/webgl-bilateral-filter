@@ -1,4 +1,6 @@
 var React = require("react");
+var InputImageDisplay = require("./InputImageDisplay");
+var AppPage = require("./../AppPage");
 
 var SelectImagePanel = React.createClass({
 	getFilenameFromPath: function(path) {
@@ -50,18 +52,24 @@ var SelectImagePanel = React.createClass({
 		this.loadImageFromUrl("images/birds.png");
 	},
 	render: function() {
-		return <div className="md-panel">
-			1. Select an Image
-			{/* Select from sample gallery */}
-			<a href="#" onClick={this.openGallery}>Choose a Sample Image</a>
-			{/* Load a local file */}
-			<input type="file" name="imgLocal" onChange={this.loadLocalImage} onClick={this.clearLocalImg}/>
-			{/* Load a remote file */}
-			<form onSubmit={this.loadRemoteImage}>
-				<input type="text" ref="imgPath" name="imgPath"/>
-				<button type="submit">Load Image</button>
-			</form>
-		</div>
+		const {activePage, nextPage, image, width, height} = this.props;
+
+		return <AppPage id="SelectImage" activePage={activePage}>
+			<div className="md-panel">
+				1. Select an Image
+				{/* Select from sample gallery */}
+				<a href="#" onClick={this.openGallery}>Choose a Sample Image</a>
+				{/* Load a local file */}
+				<input type="file" name="imgLocal" onChange={this.loadLocalImage} onClick={this.clearLocalImg}/>
+				{/* Load a remote file */}
+				<form onSubmit={this.loadRemoteImage}>
+					<input type="text" ref="imgPath" name="imgPath"/>
+					<button type="submit">Load Image</button>
+				</form>
+				<InputImageDisplay image={image} width={width} height={height} />
+				<button type="button" onClick={nextPage}>Next</button>
+			</div>
+		</AppPage>
 	}
 });
 
