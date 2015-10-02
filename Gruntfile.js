@@ -47,6 +47,14 @@ module.exports = function(grunt) {
 							loader: 'raw',
 							exclude: /node_modules/
 						},
+						{
+							test: /\.css$/,
+							loader: 'style!css'
+						},
+						{
+							test: /\.scss$/,
+							loader: 'style!css!sass'
+						}
 					],
 					noParse: reactPath
 				},
@@ -59,7 +67,7 @@ module.exports = function(grunt) {
 			dev: {
 				options: {
 					port: 8080,
-					base: ['.','build'],
+					base: ['build'],
 					hostname: '*',
 					livereload: true
 				}
@@ -74,12 +82,8 @@ module.exports = function(grunt) {
 				files: ['source/**/*.html'],
 				tasks: ['copy:html']
 			},
-			js: {
-				files: ['source/**/*.js'],
-				tasks: ['webpack']
-			},
-			shaders: {
-				files: ['source/**/*.glsl'],
+			webpack: {
+				files: ['source/**/*.{js,glsl,css,scss}'],
 				tasks: ['webpack']
 			},
 			images: {

@@ -17,13 +17,17 @@
   },
   "homepage": "https://github.com/tjpotts/webgl-bilateral-filter",
   "devDependencies": {
+    "css-loader": "^0.19.0",
     "grunt": "^0.4.5",
     "grunt-contrib-connect": "^0.11.2",
     "grunt-contrib-copy": "^0.8.1",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-webpack": "^1.0.11",
     "load-grunt-tasks": "^3.2.0",
+    "node-sass": "^3.3.3",
     "raw-loader": "^0.5.1",
+    "sass-loader": "^3.0.0",
+    "style-loader": "^0.12.4",
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.11.0"
   },
@@ -32,6 +36,7 @@
     "gl-react": "^1.1.0",
     "jquery": "^2.1.4",
     "ndarray": "^1.0.18",
+    "normalize.css": "^3.0.3",
     "react": "^0.13.3"
   }
 }

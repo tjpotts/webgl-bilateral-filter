@@ -1,6 +1,6 @@
 var React = require("react");
 
-var SelectImageForm = React.createClass({
+var SelectImagePanel = React.createClass({
 	getFilenameFromPath: function(path) {
 		return path.replace(/^.*[\\\/]/,'');
 	},
@@ -50,7 +50,7 @@ var SelectImageForm = React.createClass({
 		this.loadImageFromUrl("images/birds.png");
 	},
 	render: function() {
-		return <div>
+		return <div className="md-panel">
 			1. Select an Image
 			{/* Select from sample gallery */}
 			<a href="#" onClick={this.openGallery}>Choose a Sample Image</a>
@@ -65,4 +65,4 @@ var SelectImageForm = React.createClass({
 	}
 });
 
-module.exports = SelectImageForm;
+module.exports = SelectImagePanel;

@@ -2,9 +2,9 @@ var React = require("react");
 var GL = require("gl-react");
 
 var ImageFilter = require("./../ImageFilter");
-var SelectImageForm = require("./../SelectImageForm");
-var OptionsForm = require("./../OptionsForm");
-var SaveForm = require("./../SaveForm");
+var SelectImagePanel = require("./../SelectImagePanel");
+var OptionsPanel = require("./../OptionsPanel");
+var SavePanel = require("./../SavePanel");
 
 var ImageFilterApp = React.createClass({
 	getInitialState: function() {
@@ -38,10 +38,10 @@ var ImageFilterApp = React.createClass({
 		const filterProps = {width,height,sobelFactor,bilatIters:3,ssig,rsig}
 		
 		return <div>
-			<SelectImageForm onChange={this.onChangeHandler} />
-			<ImageFilter ref="filter" {...filterProps}>{image}</ImageFilter>
-			<OptionsForm onChange={this.onChangeHandler} {...{ssigDef,rsigDef,sobelFactorDef}} />
-			<SaveForm saveCallback={this.saveImage} />
+			<SelectImagePanel onChange={this.onChangeHandler} />
+			<div className="md-panel"><ImageFilter ref="filter" {...filterProps}>{image}</ImageFilter></div>
+			<OptionsPanel onChange={this.onChangeHandler} {...{ssigDef,rsigDef,sobelFactorDef}} />
+			<SavePanel saveCallback={this.saveImage} />
 		</div>;
 	}
 });

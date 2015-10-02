@@ -1,6 +1,6 @@
 var React = require("react");
 
-var OptionsForm = React.createClass({
+var OptionsPanel = React.createClass({
 	inputChange: function(e) {
 		var option = {};
 		var val = e.target.value;
@@ -10,7 +10,7 @@ var OptionsForm = React.createClass({
 		this.props.onChange(option);
 	},
 	render: function() {
-		return <form>
+		return <form className="md-panel">
 			<label htmlFor="ssig">Blur</label>
 			<input type="range" name="ssig" defaultValue={this.props.ssigDef} min={1} max={10} step={1} onMouseUp={this.inputChange}/>
 			<label htmlFor="rsig">Edge Preservation</label>
@@ -21,4 +21,4 @@ var OptionsForm = React.createClass({
 	}
 });
 
-module.exports = OptionsForm;
+module.exports = OptionsPanel;
